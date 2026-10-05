@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rutina de ejercicios</title>
+<style>
+:root{--bg:#000;--card:#0d0d0f;--tx:#f4f4f5;--mut:#8a8a93;--bd:#1f1f24;--ac:#8b7cff;--pb:#fff;--pt:#000;--ok:#00e08a;--no:#ff4d6a;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
+main{max-width:920px;margin:0 auto;padding:20px 16px 40px}
+.banner{background:radial-gradient(circle at 90% -20%,rgba(0,224,138,.28),transparent 55%),radial-gradient(circle at 0% 120%,rgba(139,124,255,.22),transparent 55%),#0a0a0c;border:1px solid var(--bd);border-radius:16px;padding:20px 18px 16px;margin-bottom:14px}
+.banner h1{margin:0 0 4px;font-size:1.5rem}.banner p{margin:0;color:var(--mut)}.g{color:var(--ok)}
+.tabs{display:flex;gap:6px;margin-bottom:14px}.tabs button{flex:1}
+.tabs button.on{background:var(--pb);color:var(--pt);border-color:var(--pb);font-weight:700}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:16px;margin-bottom:16px}
+h2{font-size:1rem;margin:0 0 10px}
+.hint{font-size:.82rem;color:var(--mut);margin:8px 0 0}
+input,select{padding:9px;border:1px solid var(--bd);border-radius:8px;background:#000;color:var(--tx);font-size:.95rem;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--ac)}
+label{display:block;font-size:.78rem;color:var(--mut);margin-bottom:3px}
+button{padding:9px 14px;border-radius:8px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer;font-size:.9rem}
+button.p{background:var(--pb);border-color:var(--pb);color:var(--pt);font-weight:700}
+.form{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;align-items:end}
+.sc{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.88rem}
+th,td{padding:7px 6px;border-bottom:1px solid var(--bd);text-align:left;font-variant-numeric:tabular-nums}
+th{color:var(--mut);font-weight:600}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:16px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-top:2px solid var(--ac);border-radius:16px;padding:14px}
+.kpi span{color:var(--mut);font-size:.82rem}.kpi b{display:block;font-size:1.35rem;margin-top:2px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.up{color:var(--ok)}.dn{color:var(--no)}
+.leg{display:flex;gap:12px;flex-wrap:wrap;font-size:.8rem;color:var(--mut);margin-bottom:10px}
+.goal{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.9rem}
+.goal b{color:var(--ok)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;max-width:420px}
+.cal div{aspect-ratio:1;border-radius:8px;background:#141418;display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--mut)}
+.cal .h{background:none;aspect-ratio:auto;font-size:.72rem}
+.bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:.85rem}
+.bar i{display:block;height:12px;border-radius:6px}
+.bar span{min-width:70px;color:var(--mut)}
+svg text{fill:var(--mut);font-size:11px}
+</style>
+</head>
+<body>
+<main>
+<div class="banner"><h1>Rutina de <span class="g">ejercicios</span></h1><p>Registra tu sesión, supera tu volumen y mira tu progreso.</p></div>
+<div class="tabs"><button id="b1" onclick="tab(1)">Sesión</button><button id="b2" onclick="tab(2)">Progreso</button><button id="b3" onclick="tab(3)">Mes</button><button id="b4" onclick="tab(4)">Año</button></div>
+
+<section id="t1">
+  <div class="card">
+    <h2>Agregar ejercicio</h2>
+    <div class="form">
+      <div><label>Fecha</label><input id="fd" type="date" oninput="renderAll()"></div>
+      <div><label>Grupo muscular</label><select id="fg"></select></div>
+      <div><label>Ejercicio</label><input id="fe" list="exl" placeholder="Press banca" oninput="hint()"></div>
+      <div><label>Peso (kg)</label><input id="fw" type="number" step="any" min="0"></div>
+      <div><label>Repeticiones</label><input id="fr" type="number" min="1"></div>
+      <div><label>Series</label><input id="fs" type="number" min="1" value="3"></div>
+      <button class="p" onclick="add()">Agregar</button>
+    </div>
+    <datalist id="exl"></datalist>
+    <p class="hint" id="hint"></p>
+  </div>
+  <div class="kpis" id="sk"></div>
+  <div class="card"><h2>Ejercicios de la sesión</h2><div class="sc" id="stab"></div></div>
+  <div class="card"><h2>Meta para la próxima sesión</h2><div id="goals"></div><p class="hint">Regla: suma 1 repetición por sesión hasta llegar a 12; al lograrlo, sube 2.5 kg y vuelve a 8 repeticiones.</p></div>
+</section>
+
+<section id="t2" style="display:none">
+  <div class="card"><h2>Volumen por sesión (kg)</h2><div class="sc" id="c1"></div></div>
+  <div class="card"><h2>Peso máximo por ejercicio</h2><select id="px" onchange="renderProg()" style="margin-bottom:10px"></select><div class="sc" id="c2"></div></div>
+</section>
+
+<section id="t3" style="display:none">
+  <div class="card"><label>Mes</label><input id="mm" type="month" oninput="renderMes()" style="max-width:220px"></div>
+  <div class="kpis" id="mk"></div>
+  <div class="card"><h2>Calendario del mes</h2><div class="leg" id="ml"></div><div class="cal" id="cal"></div></div>
+  <div class="card"><h2>Volumen por grupo muscular</h2><div id="mb"></div></div>
+</section>
+
+<section id="t4" style="display:none">
+  <div class="card"><label>Año</label><select id="ay" onchange="renderAnio()" style="max-width:160px"></select></div>
+  <div class="kpis" id="ak"></div>
+  <div class="card"><h2>Sesiones del año</h2><div class="leg" id="al"></div><div class="sc" id="heat"></div></div>
+  <div class="card"><h2>Volumen mensual por grupo (kg)</h2><div class="sc" id="stk"></div></div>
+  <div class="card"><h2>Datos</h2><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="demo" onclick="demo()">Cargar datos de ejemplo</button><button id="clr" onclick="clr()">Borrar todo</button></div><p class="hint">Tus datos se guardan en este navegador.</p></div>
+</section>
+</main>
+
+<script>
+const $=id=>document.getElementById(id);
+const G={"Pecho":"#ff4d6a","Espalda":"#38bdf8","Pierna":"#00e08a","Hombro":"#ffb020","Bíceps":"#8b7cff","Tríceps":"#f472b6","Core":"#a3e635"};
+const GN=Object.keys(G),MES=["Ene","Feb","Mar","Abr","May","Jun","Jul","Ago","Sep","Oct","Nov","Dic"];
+let E=[];try{E=JSON.parse(localStorage.getItem("gym_v1")||"[]")}catch(e){E=[]}
+const save=()=>{try{localStorage.setItem("gym_v1",JSON.stringify(E))}catch(e){}};
+const vol=e=>e.w*e.r*e.s,p2=n=>String(n).padStart(2,"0"),fmt=n=>Math.round(n).toLocaleString("es-MX");
+const ymd=d=>d.getFullYear()+"-"+p2(d.getMonth()+1)+"-"+p2(d.getDate());
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const rgba=(h,a)=>{const n=parseInt(h.slice(1),16);return`rgba(${n>>16},${n>>8&255},${n&255},${a})`};
+const dm=d=>d.slice(8)+"/"+d.slice(5,7);
+const pct=(a,b)=>b?((a-b)/b*100):null;
+const delta=p=>p===null?"—":`<span class="${p>=0?"up":"dn"}">${p>=0?"▲":"▼"} ${Math.abs(p).toFixed(1)}%</span>`;
+const legend=()=>GN.map(g=>`<span><i class="dot" style="background:${G[g]}"></i>${g}</span>`).join("");
+
+function days(){
+  const m={};E.forEach(e=>{const d=m[e.date]||(m[e.date]={v:0,sets:0,g:{},items:[]});d.v+=vol(e);d.sets+=e.s;d.g[e.group]=(d.g[e.group]||0)+vol(e);d.items.push(e)});
+  Object.values(m).forEach(d=>d.dom=Object.keys(d.g).sort((a,b)=>d.g[b]-d.g[a])[0]);return m;
+}
+function tab(n){for(let i=1;i<=4;i++){$("t"+i).style.display=i===n?"block":"none";$("b"+i).className=i===n?"on":""}renderAll()}
+
+function add(){
+  const e={id:Date.now()+Math.random(),date:$("fd").value,group:$("fg").value,ex:$("fe").value.trim(),w:parseFloat($("fw").value),r:parseInt($("fr").value),s:parseInt($("fs").value)||1};
+  if(!e.date||!e.ex||isNaN(e.w)||!(e.r>0))return $("hint").textContent="Completa ejercicio, peso y repeticiones.";
+  E.push(e);save();renderAll();
+}
+function del(id){E=E.filter(e=>e.id!==id);save();renderAll()}
+function target(e){return e.r>=12?{w:e.w+2.5,r:8}:{w:e.w,r:e.r+1}}
+function lastOf(ex,before){
+  const l=E.filter(e=>e.ex.toLowerCase()===ex.toLowerCase()&&(!before||e.date<before));
+  if(!l.length)return null;const d=l.map(e=>e.date).sort().pop();
+  return l.filter(e=>e.date===d).sort((a,b)=>b.w-a.w||b.r-a.r)[0];
+}
+function hint(){
+  const ex=$("fe").value.trim(),l=ex&&lastOf(ex,$("fd").value);
+  if(!l){$("hint").textContent=ex?"Primera vez con este ejercicio.":"";return}
+  const t=target(l);$("hint").textContent=`Última vez (${dm(l.date)}): ${l.w} kg × ${l.r} × ${l.s}. Meta de hoy: ${t.w} kg × ${t.r}.`;
+}
+
+function renderSesion(){
+  const D=days(),date=$("fd").value,d=D[date];
+  $("exl").innerHTML=[...new Set(E.map(e=>e.ex))].map(x=>`<option value="${esc(x)}">`).join("");
+  let cmp=null,cl="";
+  if(d){const prev=Object.keys(D).filter(k=>k<date&&D[k].dom===d.dom).sort().pop();if(prev){cmp=pct(d.v,D[prev].v);cl=`vs ${d.dom} del ${dm(prev)}`}}
+  $("sk").innerHTML=`<div class="kpi"><span>Volumen de la sesión</span><b>${d?fmt(d.v):0} kg</b></div><div class="kpi"><span>Series totales</span><b>${d?d.sets:0}</b></div><div class="kpi"><span>Cambio ${cl}</span><b>${delta(cmp)}</b></div>`;
+  $("stab").innerHTML=d?`<table><tr><th>Ejercicio</th><th>Grupo</th><th>Peso × Rep × Series</th><th>Volumen</th><th></th></tr>`+d.items.map(e=>`<tr><td>${esc(e.ex)}</td><td><i class="dot" style="background:${G[e.group]}"></i>${e.group}</td><td>${e.w} kg × ${e.r} × ${e.s}</td><td>${fmt(vol(e))} kg</td><td><button onclick="del(${e.id})">✕</button></td></tr>`).join("")+`<tr><th colspan="3">Total</th><th>${fmt(d.v)} kg</th><th></th></tr></table>`:`<p class="hint">Aún no hay ejercicios en esta fecha.</p>`;
+  const exs=d?[...new Set(d.items.map(e=>e.ex))]:[];
+  $("goals").innerHTML=exs.length?exs.map(x=>{const l=lastOf(x,"9999");const t=target(l);return`<div class="goal"><span>${esc(x)}<br><small style="color:var(--mut)">Hoy: ${l.w} kg × ${l.r}</small></span><b>${t.w} kg × ${t.r}</b></div>`}).join(""):`<p class="hint">Agrega ejercicios para ver tu meta.</p>`;
+  hint();
+}
+
+function ax(W,H,m,max){
+  const sy=v=>m.t+(1-v/max)*(H-m.t-m.b);let g="";
+  for(let i=0;i<=4;i++){const v=max*i/4;g+=`<line x1="${m.l}" x2="${W-m.r}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--bd)"/><text x="${m.l-6}" y="${sy(v)+4}" text-anchor="end">${fmt(v)}</text>`}
+  return{sy,g};
+}
+const svg=(W,H,b)=>`<svg viewBox="0 0 ${W} ${H}" width="100%" style="min-width:440px">${b}</svg>`;
+const empty=`<p class="hint">Sin datos todavía. Registra una sesión o carga datos de ejemplo en la pestaña Año.</p>`;
+
+function renderProg(){
+  const D=days(),S=Object.keys(D).sort();
+  if(!S.length){$("c1").innerHTML=empty;$("c2").innerHTML=empty;$("px").innerHTML="";return}
+  {const W=640,H=260,m={l:58,r:12,t:12,b:30},max=Math.max(...S.map(k=>D[k].v))*1.1,a=ax(W,H,m,max),bw=(W-m.l-m.r)/S.length;let s=a.g;
+   S.forEach((k,i)=>{const w=Math.min(bw*.7,30),x=m.l+i*bw+(bw-w)/2,y=a.sy(D[k].v);s+=`<rect x="${x}" y="${y}" width="${w}" height="${H-m.b-y}" rx="3" fill="${G[D[k].dom]}"><title>${k}: ${fmt(D[k].v)} kg (${D[k].dom})</title></rect>`;if(i%Math.ceil(S.length/6)===0)s+=`<text x="${x+w/2}" y="${H-10}" text-anchor="middle">${dm(k)}</text>`});
+   $("c1").innerHTML=svg(W,H,s)}
+  const exs=[...new Set(E.map(e=>e.ex))],cur=$("px").value;
+  $("px").innerHTML=exs.map(x=>`<option ${x===cur?"selected":""} value="${esc(x)}">${esc(x)}</option>`).join("");
+  const ex=exs.includes(cur)?cur:exs[0],mp={};E.filter(e=>e.ex===ex).forEach(e=>mp[e.date]=Math.max(mp[e.date]||0,e.w));
+  const ks=Object.keys(mp).sort(),W=640,H=260,m={l:58,r:20,t:14,b:30},max=Math.max(...ks.map(k=>mp[k]))*1.15,a=ax(W,H,m,max);
+  const sx=i=>ks.length<2?(W+m.l)/2:m.l+i/(ks.length-1)*(W-m.l-m.r);let s=a.g;
+  s+=`<polyline fill="none" stroke="var(--ok)" stroke-width="2.5" points="${ks.map((k,i)=>sx(i)+","+a.sy(mp[k])).join(" ")}"/>`;
+  ks.forEach((k,i)=>{s+=`<circle cx="${sx(i)}" cy="${a.sy(mp[k])}" r="4" fill="var(--ok)"><title>${k}: ${mp[k]} kg</title></circle>`;if(i%Math.ceil(ks.length/6)===0)s+=`<text x="${sx(i)}" y="${H-10}" text-anchor="middle">${dm(k)}</text>`});
+  $("c2").innerHTML=svg(W,H,s);
+}
+
+function sumBy(list){const g={};let v=0,sets=0;list.forEach(e=>{g[e.group]=(g[e.group]||0)+vol(e);v+=vol(e);sets+=e.s});return{g,v,sets}}
+function renderMes(){
+  const ym=$("mm").value||ymd(new Date()).slice(0,7),[y,mo]=ym.split("-").map(Number);
+  const pv=new Date(y,mo-2,1),pym=pv.getFullYear()+"-"+p2(pv.getMonth()+1);
+  const L=E.filter(e=>e.date.startsWith(ym)),T=sumBy(L),P=sumBy(E.filter(e=>e.date.startsWith(pym))),D=days();
+  const n=new Set(L.map(e=>e.date)).size;
+  $("mk").innerHTML=`<div class="kpi"><span>Sesiones</span><b>${n}</b></div><div class="kpi"><span>Volumen total</span><b>${fmt(T.v)} kg</b></div><div class="kpi"><span>Series</span><b>${T.sets}</b></div><div class="kpi"><span>vs mes anterior</span><b>${delta(pct(T.v,P.v))}</b></div>`;
+  $("ml").innerHTML=legend();
+  const off=(new Date(y,mo-1,1).getDay()+6)%7,nd=new Date(y,mo,0).getDate(),mx=Math.max(1,...Object.keys(D).filter(k=>k.startsWith(ym)).map(k=>D[k].v));
+  let h=["L","M","X","J","V","S","D"].map(x=>`<div class="h">${x}</div>`).join("")+"<div style='background:none'></div>".repeat(off);
+  for(let i=1;i<=nd;i++){const k=ym+"-"+p2(i),d=D[k];h+=d?`<div style="background:${rgba(G[d.dom],.4+.6*d.v/mx)};color:#000;font-weight:700" title="${k}: ${fmt(d.v)} kg (${d.dom})">${i}</div>`:`<div>${i}</div>`}
+  $("cal").innerHTML=h;
+  const gm=Math.max(1,...GN.map(g=>T.g[g]||0));
+  $("mb").innerHTML=GN.map(g=>`<div class="bar"><span>${g}</span><i style="width:${(T.g[g]||0)/gm*60}%;background:${G[g]};min-width:${T.g[g]?4:0}px"></i><small>${fmt(T.g[g]||0)} kg</small></div>`).join("");
+}
+
+function renderAnio(){
+  const ys=[...new Set([new Date().getFullYear(),...E.map(e=>+e.date.slice(0,4))])].sort((a,b)=>b-a),cur=$("ay").value||ys[0];
+  $("ay").innerHTML=ys.map(y=>`<option ${String(y)===String(cur)?"selected":""}>${y}</option>`).join("");
+  const y=+$("ay").value,D=days(),L=E.filter(e=>e.date.startsWith(y+"-")),T=sumBy(L),n=new Set(L.map(e=>e.date)).size;
+  const mv=Array.from({length:12},(_,i)=>sumBy(L.filter(e=>+e.date.slice(5,7)===i+1)));
+  const best=mv.reduce((b,x,i)=>x.v>mv[b].v?i:b,0);
+  $("ak").innerHTML=`<div class="kpi"><span>Sesiones</span><b>${n}</b></div><div class="kpi"><span>Volumen anual</span><b>${fmt(T.v)} kg</b></div><div class="kpi"><span>Promedio por sesión</span><b>${fmt(n?T.v/n:0)} kg</b></div><div class="kpi"><span>Mejor mes</span><b>${T.v?MES[best]:"—"}</b></div>`;
+  $("al").innerHTML=legend();
+  const off=(new Date(y,0,1).getDay()+6)%7,tot=(new Date(y,11,31)-new Date(y,0,1))/864e5+1,wk=Math.ceil((off+tot)/7);
+  const mx=Math.max(1,...Object.keys(D).filter(k=>k.startsWith(y+"-")).map(k=>D[k].v));
+  let s="";
+  for(let i=0;i<tot;i++){const dt=new Date(y,0,1+i),k=ymd(dt),c=Math.floor((i+off)/7),r=(i+off)%7,d=D[k];
+    s+=`<rect x="${30+c*15}" y="${20+r*15}" width="12" height="12" rx="3" fill="${d?rgba(G[d.dom],.4+.6*d.v/mx):"#141418"}"><title>${k}${d?": "+fmt(d.v)+" kg ("+d.dom+")":""}</title></rect>`;
+    if(dt.getDate()===1)s+=`<text x="${30+c*15}" y="12">${MES[dt.getMonth()]}</text>`}
+  ["L","X","V"].forEach((t,i)=>s+=`<text x="4" y="${20+i*30+10}">${t}</text>`);
+  $("heat").innerHTML=`<svg viewBox="0 0 ${40+wk*15} 130" style="min-width:${40+wk*15}px;height:130px">${s}</svg>`;
+  {const W=640,H=250,m={l:58,r:12,t:12,b:26},max=Math.max(1,...mv.map(x=>x.v))*1.1,a=ax(W,H,m,max),bw=(W-m.l-m.r)/12;let b=a.g;
+   mv.forEach((x,i)=>{let acc=0;const w=bw*.65,xx=m.l+i*bw+(bw-w)/2;GN.forEach(g=>{const v=x.g[g]||0;if(!v)return;const y0=a.sy(acc),y1=a.sy(acc+v);b+=`<rect x="${xx}" y="${y1}" width="${w}" height="${y0-y1}" fill="${G[g]}"><title>${MES[i]} · ${g}: ${fmt(v)} kg</title></rect>`;acc+=v});b+=`<text x="${xx+w/2}" y="${H-8}" text-anchor="middle">${MES[i]}</text>`});
+   $("stk").innerHTML=svg(W,H,b)}
+}
+
+function demo(){
+  const plan=[["Pecho",[["Press banca",60],["Press inclinado",24]]],["Espalda",[["Remo con barra",50],["Jalón al pecho",45]]],["Pierna",[["Sentadilla",80],["Prensa",140]]],["Hombro",[["Press militar",35],["Elevaciones laterales",8]]],["Bíceps",[["Curl con barra",25]]],["Tríceps",[["Fondos",0],["Press francés",20]]]];
+  let k=0;const st=new Date();st.setDate(st.getDate()-170);
+  for(let i=0;i<=170;i++){const dt=new Date(st);dt.setDate(st.getDate()+i);if(![1,3,5].includes(dt.getDay())||(i*7)%11===0)continue;
+    const [g,ex]=plan[k%plan.length],c=Math.floor(k/plan.length);k++;
+    ex.forEach(([n,w])=>E.push({id:Date.now()+Math.random(),date:ymd(dt),group:g,ex:n,w:w+2.5*Math.floor(c/2),r:8+c%3*2,s:3}))}
+  save();renderAll();
+}
+let armed=false;
+function clr(){if(!armed){armed=true;$("clr").textContent="¿Seguro? Haz clic otra vez";return}E=[];save();armed=false;$("clr").textContent="Borrar todo";renderAll()}
+
+function renderAll(){renderSesion();renderProg();renderMes();renderAnio()}
+$("fg").innerHTML=GN.map(g=>`<option>${g}</option>`).join("");
+$("fd").value=ymd(new Date());$("mm").value=ymd(new Date()).slice(0,7);
+tab(1);
+</script>
+</body>
+</html>
